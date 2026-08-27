@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NexOS</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Login/Setup Wizard -->
+<div id="wizard">
+  <div class="wiz-step" id="wiz-step1">
+    <div style="font-size:48px;margin-bottom:12px">&#127760;</div>
+    <h2>Welcome to NexOS</h2>
+    <p>The intelligent operating system with AI-powered features, virtual desktops, and voice control.</p>
+    <button class="primary" onclick="nextWiz()" style="font-size:14px;padding:10px 24px">Get Started</button>
+    <div class="wiz-dots"><div class="wiz-dot active"></div><div class="wiz-dot"></div><div class="wiz-dot"></div></div>
+  </div>
+  <div class="wiz-step" id="wiz-step2" style="display:none">
+    <div class="wiz-avatar" id="wiz-avatar">&#128100;</div>
+    <h2>Create Your Profile</h2>
+    <p>Personalize your NexOS experience</p>
+    <input placeholder="Your name" id="wiz-name" />
+    <input type="file" accept="image/*" id="wiz-avatar-file" /><button onclick="document.getElementById('wiz-avatar-file').click()">Choose Avatar</button>
+    <button class="primary" onclick="nextWiz()" style="font-size:14px;padding:10px 24px;margin-top:8px">Continue</button>
+    <div class="wiz-dots"><div class="wiz-dot done"></div><div class="wiz-dot active"></div><div class="wiz-dot"></div></div>
+  </div>
+  <div class="wiz-step" id="wiz-step3" style="display:none">
+    <div style="font-size:48px;margin-bottom:12px">&#9989;</div>
+    <h2>You're All Set!</h2>
+    <p>NexOS is ready. Right-click the desktop to get started, or press Alt+Space to ask the AI assistant anything.</p>
+    <button class="primary" onclick="finishWiz()" style="font-size:14px;padding:10px 24px">Start Using NexOS</button>
+    <div class="wiz-dots"><div class="wiz-dot done"></div><div class="wiz-dot done"></div><div class="wiz-dot active"></div></div>
+  </div>
+</div>
+
+<div id="boot">
+  <div class="boot-logo">&#9670;</div>
+  <div style="color:var(--txt);font-size:18px;letter-spacing:4px;font-weight:300">NexOS</div>
+  <div class="boot-spin"><div class="boot-fill" id="boot-fill"></div></div>
+</div>
+
+<div id="ctx"></div>
+<div id="alttab"><div class="at-grid" id="at-grid"></div><div style="font-size:12px;color:var(--txt2);margin-top:8px">Alt+Tab to switch &middot; Release to select</div></div>
+
+<div id="desktop"></div>
+<div id="desktop-icons">
+  <div class="d-icon" ondblclick="openApp('files')" onclick="selectDI(this)"><div class="di" style="background:#58a6ff">&#128193;</div><div class="dl">Files</div></div>
+  <div class="d-icon" ondblclick="openApp('terminal')" onclick="selectDI(this)"><div class="di" style="background:#8b949e">&#9000;</div><div class="dl">Terminal</div></div>
+  <div class="d-icon" ondblclick="openApp('paint')" onclick="selectDI(this)"><div class="di" style="background:#f0883e">&#127912;</div><div class="dl">Paint</div></div>
+  <div class="d-icon" ondblclick="openApp('code')" onclick="selectDI(this)"><div class="di" style="background:#3fb950">&#128187;</div><div class="dl">VS Code</div></div>
+  <div class="d-icon" ondblclick="openApp('music')" onclick="selectDI(this)"><div class="di" style="background:#bc8cff">&#127925;</div><div class="dl">Music</div></div>
+  <div class="d-icon" ondblclick="openApp('calculator')" onclick="selectDI(this)"><div class="di" style="background:#f85149">&#128290;</div><div class="dl">Calculator</div></div>
+  <div class="d-icon" ondblclick="openApp('notes')" onclick="selectDI(this)"><div class="di" style="background:#f2cc60">&#128221;</div><div class="dl">Notes</div></div>
+  <div class="d-icon" ondblclick="openApp('calendar')" onclick="selectDI(this)"><div class="di" style="background:#79c0ff">&#128197;</div><div class="dl">Calendar</div></div>
+  <div class="d-icon" ondblclick="openApp('timer')" onclick="selectDI(this)"><div class="di" style="background:#56d364">&#9202;</div><div class="dl">Clock</div></div>
+  <div class="d-icon" ondblclick="openApp('workflow')" onclick="selectDI(this)"><div class="di" style="background:#db6d28">&#9889;</div><div class="dl">Automate</div></div>
+  <div class="d-icon" ondblclick="openApp('agent')" onclick="selectDI(this)"><div class="di" style="background:#a371f7">&#129504;</div><div class="dl">AI Agents</div></div>
+  <div class="d-icon" ondblclick="openApp('settings')" onclick="selectDI(this)"><div class="di" style="background:#768390">&#9881;</div><div class="dl">Settings</div></div>
+</div>
+
+<div id="widgets">
+  <div class="wg-card"><h4>&#127968; System Monitor</h4>
+    <div class="wg-metric"><span>CPU</span><span id="wg-cpu">45%</span></div><div class="wg-bar"><div class="wg-bar-fill" id="wg-cpu-bar" style="width:45%"></div></div>
+    <div class="wg-metric"><span>Memory</span><span id="wg-mem">62%</span></div><div class="wg-bar"><div class="wg-bar-fill" id="wg-mem-bar" style="width:62%"></div></div>
+    <div class="wg-metric"><span>Disk</span><span id="wg-disk">38%</span></div><div class="wg-bar"><div class="wg-bar-fill" id="wg-disk-bar" style="width:38%"></div></div>
+    <div class="wg-metric"><span>Network</span><span id="wg-net">1.2 Mbps</span></div>
+  </div>
+  <div class="wg-card"><h4>&#9729; Weather</h4>
+    <div class="wg-weather"><span class="ww">&#127781;</span><span><strong id="wg-temp">24&deg;C</strong><br><small id="wg-cond">Partly Cloudy</small></span></div>
+  </div>
+  <div class="wg-card"><h4>&#128337; Quick Actions</h4>
+    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:4px">
+      <button onclick="openApp('terminal')">Terminal</button>
+      <button onclick="openApp('files')">Files</button>
+      <button onclick="toggleAIPanel()">AI Chat</button>
+      <button onclick="notify('Widgets','Action triggered','&#9989;')">Notify</button>
+    </div>
+  </div>
+</div>
+
+<div id="notif-center">
+  <div class="nc-header"><strong>Notifications</strong><button onclick="document.getElementById('notif-center').classList.remove('show')">&times;</button></div>
+  <div class="nc-list" id="nc-list">
+    <div class="nc-item"><span>&#10024;</span><span>Welcome to NexOS. Your intelligent operating system is ready.</span></div>
+  </div>
+</div>
+
+<div id="cal-flyout">
+  <div class="cf-header">
+    <button id="cf-prev">&lsaquo;</button>
+    <strong id="cf-title"></strong>
+    <button id="cf-next">&rsaquo;</button>
+  </div>
+  <div class="cf-grid" id="cf-grid"></div>
+</div>
+
+<div id="start">
+  <div class="start-pinned">
+    <div class="start-search"><input placeholder="Type to search apps, files, AI commands..." id="start-search" /></div>
+    <h4 style="margin-top:10px">Pinned</h4>
+    <div class="start-grid">
+      <div class="start-tile" onclick="openApp('files');closeStart()"><span class="st">&#128193;</span>Files</div>
+      <div class="start-tile" onclick="openApp('terminal');closeStart()"><span class="st">&#9000;</span>Terminal</div>
+      <div class="start-tile" onclick="openApp('code');closeStart()"><span class="st">&#128187;</span>Code</div>
+      <div class="start-tile" onclick="openApp('paint');closeStart()"><span class="st">&#127912;</span>Paint</div>
+      <div class="start-tile" onclick="openApp('music');closeStart()"><span class="st">&#127925;</span>Music</div>
+      <div class="start-tile" onclick="openApp('calculator');closeStart()"><span class="st">&#128290;</span>Calc</div>
+      <div class="start-tile" onclick="openApp('notes');closeStart()"><span class="st">&#128221;</span>Notes</div>
+      <div class="start-tile" onclick="openApp('calendar');closeStart()"><span class="st">&#128197;</span>Calendar</div>
+    </div>
+  </div>
+  <div class="start-all">
+    <div class="sa" onclick="openApp('files');closeStart()">&#128193; File Explorer</div>
+    <div class="sa" onclick="openApp('terminal');closeStart()">&#9000; Terminal</div>
+    <div class="sa" onclick="openApp('code');closeStart()">&#128187; Code Editor</div>
+    <div class="sa" onclick="openApp('paint');closeStart()">&#127912; Paint</div>
+    <div class="sa" onclick="openApp('music');closeStart()">&#127925; Music Player</div>
+    <div class="sa" onclick="openApp('calculator');closeStart()">&#128290; Calculator</div>
+    <div class="sa" onclick="openApp('notes');closeStart()">&#128221; Notes</div>
+    <div class="sa" onclick="openApp('calendar');closeStart()">&#128197; Calendar</div>
+    <div class="sa" onclick="openApp('timer');closeStart()">&#9202; Clock & Timer</div>
+    <div class="sa" onclick="openApp('workflow');closeStart()">&#9889; Workflow Automation</div>
+    <div class="sa" onclick="openApp('agent');closeStart()">&#129504; AI Agent Center</div>
+    <div class="sa" onclick="openApp('settings');closeStart()">&#9881; Settings</div>
+  </div>
+</div>
+
+<div id="ai-panel">
+  <div class="ai-header"><div class="ai-dot"></div> AI Assistant <button class="ai-close" onclick="toggleAIPanel()">&times;</button></div>
+  <div class="ai-sugg">
+    <span class="ai-s" onclick="sendAI('What can you do?')">What can you do?</span>
+    <span class="ai-s" onclick="sendAI('Open terminal')">Open terminal</span>
+    <span class="ai-s" onclick="sendAI('Play music')">Play music</span>
+    <span class="ai-s" onclick="sendAI('Show weather')">Weather</span>
+    <span class="ai-s" onclick="sendAI('Create a note')">New note</span>
+    <span class="ai-s" onclick="sendAI('Calculate 256 * 3')">Calculate</span>
+  </div>
+  <div class="ai-chat" id="ai-chat">
+    <div class="ai-msg ai">Hello! I'm your AI assistant. I can open apps, answer questions, help with calculations, and more. Try: "Open terminal" or "What's the weather?"</div>
+  </div>
+  <div class="ai-inp">
+    <input placeholder="Ask me anything..." id="ai-input" />
+    <button class="primary" onclick="sendAI()" style="font-size:14px">&#9654;</button>
+    <button id="ai-voice-btn" onclick="toggleVoice()" style="font-size:14px">&#127908;</button>
+  </div>
+</div>
+
+<div id="windows-container"></div>
+<div id="toasts"></div>
+
+<div id="taskbar">
+  <button class="tb-start" onclick="toggleStart()" title="Start">&#9670;</button>
+  <button class="tb-start" onclick="document.getElementById('widgets').classList.toggle('show')" title="Widgets">&#128240;</button>
+  <div class="vd-indicator" id="vd-indicator"></div>
+  <div class="tb-center" id="tb-center"></div>
+  <div class="tb-tray">
+    <button class="tb-tray-btn" onclick="toggleAIPanel()" title="AI Assistant">&#128172;</button>
+    <button class="tb-tray-btn" onclick="document.getElementById('notif-center').classList.toggle('show')" title="Notifications">&#128276;</button>
+    <div class="tb-clock" onclick="document.getElementById('cal-flyout').classList.toggle('show');renderCalendarFlyout()" id="tb-clock">
+      <div class="tc-t" id="tc-time"></div>
+      <div class="tc-d" id="tc-date"></div>
+    </div>
+  </div>
+</div>
+
+<div class="snap-hint" id="snap-hint"></div>
+<div id="jump-list" class="jump-list"></div>
+<div id="snipping-overlay"><div id="snipping-rect"></div></div>
+<div class="snip-result" id="snip-result"><img id="snip-img" /><button onclick="copySnip()">Copy</button><button onclick="document.getElementById('snip-result').style.display=\'none\'">Close</button></div>
+
+<footer class="footer">
+
+    <p>
+        © <span id="year"></span>
+        Made with ❤️ by
+
+        <a href="https://github.com/Probal2005" target="_blank">
+            Probal Dhali
+        </a>
+
+        | All Rights Reserved.
+    </p>
+
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
